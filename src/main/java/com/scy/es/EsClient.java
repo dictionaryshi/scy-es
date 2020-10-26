@@ -4,6 +4,8 @@ import com.scy.core.StringUtil;
 import com.scy.core.format.MessageUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.DocWriteRequest;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -64,6 +66,23 @@ public class EsClient {
         } catch (Exception e) {
             log.error(MessageUtil.format("ES get error", e, "index", index, "id", id));
             return StringUtil.EMPTY;
+        }
+    }
+
+    /**
+     * 根据id删除文档
+     */
+    public boolean delete(String index, String id) {
+        DeleteRequest request = new DeleteRequest(index, id);
+        request.timeout(TimeValue.timeValueSeconds(5));
+        request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
+        try {
+            DeleteResponse deleteResponse = restHighLevelClient.delete(request, RequestOptions.DEFAULT);
+            log.info(MessageUtil.format("ES delete response", "index", index, "id", id, "deleteResponse", deleteResponse));
+            return Boolean.TRUE;
+        } catch (Exception e) {
+            log.error(MessageUtil.format("ES delete error", e, "index", index, "id", id));
+            return Boolean.FALSE;
         }
     }
 }
