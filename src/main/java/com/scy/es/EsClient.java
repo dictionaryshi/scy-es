@@ -11,10 +11,13 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.support.WriteRequest;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.get.GetResult;
 
 /**
  * EsClient
@@ -83,6 +86,26 @@ public class EsClient {
         } catch (Exception e) {
             log.error(MessageUtil.format("ES delete error", e, "index", index, "id", id));
             return Boolean.FALSE;
+        }
+    }
+
+    /**
+     * 更新文档
+     */
+    public String update(String index, String id, String json) {
+        UpdateRequest request = new UpdateRequest(index, id);
+        request.doc(json, XContentType.JSON);
+        request.timeout(TimeValue.timeValueSeconds(5));
+        request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
+        request.fetchSource(Boolean.TRUE);
+        try {
+            UpdateResponse updateResponse = restHighLevelClient.update(request, RequestOptions.DEFAULT);
+            log.info(MessageUtil.format("ES update response", "index", index, "id", id, "json", json, "updateResponse", updateResponse));
+            GetResult result = updateResponse.getGetResult();
+            return result.sourceAsString();
+        } catch (Exception e) {
+            log.error(MessageUtil.format("ES update error", e, "index", index, "id", id, "json", json));
+            return StringUtil.EMPTY;
         }
     }
 }
