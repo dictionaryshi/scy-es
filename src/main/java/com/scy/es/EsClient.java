@@ -2,6 +2,8 @@ package com.scy.es;
 
 import com.scy.core.StringUtil;
 import com.scy.core.format.MessageUtil;
+import com.scy.es.model.SearchAO;
+import com.scy.es.model.SearchBO;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -107,5 +109,11 @@ public class EsClient {
             log.error(MessageUtil.format("ES update error", e, "index", index, "id", id, "json", json));
             return StringUtil.EMPTY;
         }
+    }
+
+    /**
+     * 搜索
+     */
+    public SearchBO search(SearchAO searchAO) {
     }
 }
