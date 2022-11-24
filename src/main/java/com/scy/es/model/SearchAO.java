@@ -3,9 +3,6 @@ package com.scy.es.model;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.sort.SortBuilder;
 
 import java.util.List;
 
@@ -22,7 +19,7 @@ public class SearchAO {
 
     private List<String> indexes;
 
-    private QueryBuilder queryBuilder;
+//    private QueryBuilder queryBuilder;
 
     private int from;
 
@@ -30,7 +27,7 @@ public class SearchAO {
 
     private int timeoutSeconds;
 
-    private List<SortBuilder<?>> sortBuilders;
-
-    private AggregationBuilder aggregationBuilder;
+//    private List<SortBuilder<?>> sortBuilders;
+//
+//    private AggregationBuilder aggregationBuilder;
 }
