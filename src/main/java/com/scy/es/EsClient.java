@@ -1,5 +1,6 @@
 package com.scy.es;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -10,6 +11,21 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class EsClient {
+
+    private final ElasticsearchClient elasticsearchClient;
+
+    public EsClient(ElasticsearchClient elasticsearchClient) {
+        this.elasticsearchClient = elasticsearchClient;
+    }
+
+    public boolean ping() {
+        try {
+            return elasticsearchClient.ping().value();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Boolean.FALSE;
+        }
+    }
 
 /*    private final RestHighLevelClient restHighLevelClient;
 
