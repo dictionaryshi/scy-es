@@ -1,6 +1,7 @@
 package com.scy.es;
 
 import co.elastic.clients.transport.ElasticsearchTransport;
+import com.scy.core.thread.ThreadUtil;
 import com.scy.es.config.EsConfig;
 import org.junit.After;
 import org.junit.Assert;
@@ -44,5 +45,11 @@ public class EsClientTest {
     public void pingTest() {
         boolean ping = esClient.ping();
         Assert.assertTrue(ping);
+    }
+
+    @Test
+    public void pingAsyncTest() {
+        esClient.pingAsync();
+        ThreadUtil.quietSleep(3_000);
     }
 }

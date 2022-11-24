@@ -1,7 +1,14 @@
 package com.scy.es;
 
+import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.transport.endpoints.BooleanResponse;
+import com.scy.core.format.MessageUtil;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * EsClient
@@ -9,13 +16,17 @@ import lombok.extern.slf4j.Slf4j;
  * @author shichunyang
  * Created by shichunyang on 2020/10/25.
  */
+@Getter
 @Slf4j
 public class EsClient {
 
     private final ElasticsearchClient elasticsearchClient;
 
-    public EsClient(ElasticsearchClient elasticsearchClient) {
+    private final ElasticsearchAsyncClient elasticsearchAsyncClient;
+
+    public EsClient(ElasticsearchClient elasticsearchClient, ElasticsearchAsyncClient elasticsearchAsyncClient) {
         this.elasticsearchClient = elasticsearchClient;
+        this.elasticsearchAsyncClient = elasticsearchAsyncClient;
     }
 
     public boolean ping() {
@@ -27,13 +38,19 @@ public class EsClient {
         }
     }
 
-/*    private final RestHighLevelClient restHighLevelClient;
-
-    public EsClient(RestHighLevelClient restHighLevelClient) {
-        this.restHighLevelClient = restHighLevelClient;
+    public void pingAsync() {
+        CompletableFuture<BooleanResponse> responseCompletableFuture = elasticsearchAsyncClient.ping();
+        responseCompletableFuture.whenComplete((response, exception) -> {
+            if (Objects.nonNull(exception)) {
+                System.out.println(MessageUtil.format("es ping error", exception));
+            } else {
+                System.out.println(MessageUtil.format("es ping", "result", response.value()));
+            }
+        });
     }
 
-    *//**
+    /*
+     *//**
      * 索引文档, 文档存在则替换
      *//*
     public String index(String index, String id, String json) {
