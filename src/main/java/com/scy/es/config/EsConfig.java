@@ -1,5 +1,6 @@
 package com.scy.es.config;
 
+import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
@@ -28,6 +29,6 @@ public class EsConfig {
 
     @Bean
     public EsClient esClient(ElasticsearchTransport elasticsearchTransport) {
-        return new EsClient(new ElasticsearchClient(elasticsearchTransport));
+        return new EsClient(new ElasticsearchClient(elasticsearchTransport), new ElasticsearchAsyncClient(elasticsearchTransport));
     }
 }
