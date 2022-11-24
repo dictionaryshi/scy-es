@@ -3,7 +3,6 @@ package com.scy.es.model;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.elasticsearch.search.aggregations.Aggregations;
 
 import java.util.List;
 
@@ -22,5 +21,5 @@ public class SearchBO {
 
     private List<String> documents;
 
-    private Aggregations aggregations;
+//    private Aggregations aggregations;
 }
