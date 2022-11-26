@@ -93,6 +93,15 @@ public class EsClient {
         }
     }
 
+    public String getSettings(String index) {
+        try {
+            return elasticsearchClient.indices().getSettings(getSettingsBuilder -> getSettingsBuilder.index(index)).toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     /*
      *//**
      * 索引文档, 文档存在则替换
