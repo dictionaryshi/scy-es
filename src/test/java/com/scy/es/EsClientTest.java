@@ -64,4 +64,10 @@ public class EsClientTest {
         String mapping = esClient.getMapping("shop");
         System.out.println();
     }
+
+    @Test
+    public void getSettingsTest() {
+        String settings = esClient.getSettings("shop");
+        System.out.println();
+    }
 }
