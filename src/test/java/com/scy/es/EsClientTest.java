@@ -70,4 +70,10 @@ public class EsClientTest {
         String settings = esClient.getSettings("shop");
         System.out.println();
     }
+
+    @Test
+    public void putMappingTest() {
+        boolean result = esClient.putMapping();
+        System.out.println();
+    }
 }

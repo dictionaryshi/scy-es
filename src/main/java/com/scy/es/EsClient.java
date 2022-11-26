@@ -5,6 +5,8 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.mapping.*;
 import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
 import co.elastic.clients.elasticsearch.indices.CreateIndexResponse;
+import co.elastic.clients.elasticsearch.indices.PutMappingRequest;
+import co.elastic.clients.elasticsearch.indices.PutMappingResponse;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
 import com.scy.core.format.MessageUtil;
 import lombok.Getter;
@@ -78,6 +80,23 @@ public class EsClient {
         try {
             CreateIndexResponse createIndexResponse = elasticsearchClient.indices().create(createIndexRequest);
             return createIndexResponse.acknowledged() && createIndexResponse.shardsAcknowledged();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Boolean.FALSE;
+        }
+    }
+
+    public boolean putMapping() {
+        Map<String, Property> propertyMap = new HashMap<>(16);
+
+        PutMappingRequest putMappingRequest = PutMappingRequest.of(putMappingBuilder -> putMappingBuilder
+                .index("shop")
+                .includeTypeName(Boolean.FALSE)
+                .properties(propertyMap)
+        );
+        try {
+            PutMappingResponse putMappingResponse = elasticsearchClient.indices().putMapping(putMappingRequest);
+            return putMappingResponse.acknowledged();
         } catch (Exception e) {
             e.printStackTrace();
             return Boolean.FALSE;
