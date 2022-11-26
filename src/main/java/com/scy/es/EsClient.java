@@ -3,10 +3,7 @@ package com.scy.es;
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.mapping.*;
-import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
-import co.elastic.clients.elasticsearch.indices.CreateIndexResponse;
-import co.elastic.clients.elasticsearch.indices.PutMappingRequest;
-import co.elastic.clients.elasticsearch.indices.PutMappingResponse;
+import co.elastic.clients.elasticsearch.indices.*;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
 import com.scy.core.format.MessageUtil;
 import lombok.Getter;
@@ -69,6 +66,7 @@ public class EsClient {
                 .index("shop")
                 .includeTypeName(Boolean.FALSE)
                 .mappings(typeMappingBuilder -> typeMappingBuilder
+                        .dynamic(DynamicMapping.False)
                         .properties(propertyMap)
                 )
                 .settings(indexSettingsBuilder -> indexSettingsBuilder
@@ -86,11 +84,24 @@ public class EsClient {
         }
     }
 
+    public boolean deleteIndex(String index) {
+        try {
+            DeleteIndexResponse deleteIndexResponse = elasticsearchClient.indices().delete(deleteBuilder -> deleteBuilder
+                    .index(index)
+            );
+            return deleteIndexResponse.acknowledged();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Boolean.FALSE;
+        }
+    }
+
     public boolean putMapping() {
         Map<String, Property> propertyMap = new HashMap<>(16);
 
         PutMappingRequest putMappingRequest = PutMappingRequest.of(putMappingBuilder -> putMappingBuilder
                 .index("shop")
+                .dynamic(DynamicMapping.False)
                 .includeTypeName(Boolean.FALSE)
                 .properties(propertyMap)
         );

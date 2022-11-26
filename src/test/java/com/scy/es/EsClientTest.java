@@ -76,4 +76,10 @@ public class EsClientTest {
         boolean result = esClient.putMapping();
         System.out.println();
     }
+
+    @Test
+    public void deleteIndexTest() {
+        boolean result = esClient.deleteIndex("shop");
+        System.out.println();
+    }
 }
