@@ -2,11 +2,16 @@ package com.scy.es;
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.mapping.*;
+import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
+import co.elastic.clients.elasticsearch.indices.CreateIndexResponse;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
 import com.scy.core.format.MessageUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
@@ -47,6 +52,45 @@ public class EsClient {
                 System.out.println(MessageUtil.format("es ping", "result", response.value()));
             }
         });
+    }
+
+    public boolean createIndex() {
+        Map<String, Property> propertyMap = new HashMap<>(16);
+        propertyMap.put("address", Property.of(propertyBuilder -> propertyBuilder.text(TextProperty.of(builder -> builder.analyzer("ik_smart")))));
+        propertyMap.put("avgprice", Property.of(propertyBuilder -> propertyBuilder.long_(LongNumberProperty.of(builder -> builder))));
+        propertyMap.put("cityid", Property.of(propertyBuilder -> propertyBuilder.integer(IntegerNumberProperty.of(builder -> builder))));
+        propertyMap.put("shopid", Property.of(propertyBuilder -> propertyBuilder.integer(IntegerNumberProperty.of(builder -> builder.docValues(Boolean.FALSE)))));
+        propertyMap.put("shopname", Property.of(propertyBuilder -> propertyBuilder.keyword(KeywordProperty.of(builder -> builder))));
+        propertyMap.put("shoppoi", Property.of(propertyBuilder -> propertyBuilder.geoPoint(GeoPointProperty.of(builder -> builder))));
+
+        CreateIndexRequest createIndexRequest = CreateIndexRequest.of(createIndexBuilder -> createIndexBuilder
+                .index("shop")
+                .includeTypeName(Boolean.FALSE)
+                .mappings(typeMappingBuilder -> typeMappingBuilder
+                        .properties(propertyMap)
+                )
+                .settings(indexSettingsBuilder -> indexSettingsBuilder
+                        .numberOfShards("5")
+                        .numberOfReplicas("1")
+                )
+        );
+
+        try {
+            CreateIndexResponse createIndexResponse = elasticsearchClient.indices().create(createIndexRequest);
+            return createIndexResponse.acknowledged() && createIndexResponse.shardsAcknowledged();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Boolean.FALSE;
+        }
+    }
+
+    public String getMapping(String index) {
+        try {
+            return elasticsearchClient.indices().getMapping(getMappingBuilder -> getMappingBuilder.index(index)).toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /*
