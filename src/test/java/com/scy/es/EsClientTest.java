@@ -52,4 +52,16 @@ public class EsClientTest {
         esClient.pingAsync();
         ThreadUtil.quietSleep(3_000);
     }
+
+    @Test
+    public void createIndexTest() {
+        boolean rsult = esClient.createIndex();
+        System.out.println();
+    }
+
+    @Test
+    public void getMappingTest() {
+        String mapping = esClient.getMapping("shop");
+        System.out.println();
+    }
 }
