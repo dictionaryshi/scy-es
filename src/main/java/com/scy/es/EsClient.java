@@ -67,6 +67,7 @@ public class EsClient {
                 .includeTypeName(Boolean.FALSE)
                 .mappings(typeMappingBuilder -> typeMappingBuilder
                         .dynamic(DynamicMapping.False)
+                        .routing(builder -> builder.required(Boolean.FALSE))
                         .properties(propertyMap)
                 )
                 .settings(indexSettingsBuilder -> indexSettingsBuilder
@@ -103,6 +104,7 @@ public class EsClient {
                 .index("shop")
                 .dynamic(DynamicMapping.False)
                 .includeTypeName(Boolean.FALSE)
+                .routing(builder -> builder.required(Boolean.FALSE))
                 .properties(propertyMap)
         );
         try {
