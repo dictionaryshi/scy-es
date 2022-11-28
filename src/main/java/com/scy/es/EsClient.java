@@ -72,7 +72,7 @@ public class EsClient {
         )));
 
         Map<String, Property> userPropertyMap = new HashMap<>(16);
-        userPropertyMap.put("userName", Property.of(propertyBuilder -> propertyBuilder.keyword(KeywordProperty.of(builder -> builder.ignoreAbove(32)))));
+        userPropertyMap.put("userName", Property.of(propertyBuilder -> propertyBuilder.keyword(KeywordProperty.of(builder -> builder.ignoreAbove(32).normalizer("lowercase_normalizer")))));
         userPropertyMap.put("age", Property.of(propertyBuilder -> propertyBuilder.integer(IntegerNumberProperty.of(builder -> builder.docValues(Boolean.FALSE)))));
         propertyMap.put("user", Property.of(propertyBuilder -> propertyBuilder.nested(builder -> builder
                 .properties(userPropertyMap)
@@ -90,6 +90,11 @@ public class EsClient {
                         .numberOfShards("5")
                         .numberOfReplicas("1")
                         .codec("best_compression")
+                        .analysis(analysisBuilder -> analysisBuilder
+                                .normalizer("lowercase_normalizer", normalizerBuilder -> normalizerBuilder
+                                        .custom(builder -> builder.filter("lowercase"))
+                                )
+                        )
                 )
         );
 
