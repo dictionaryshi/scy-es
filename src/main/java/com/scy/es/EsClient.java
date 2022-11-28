@@ -55,7 +55,10 @@ public class EsClient {
 
     public boolean createIndex() {
         Map<String, Property> propertyMap = new HashMap<>(16);
-        propertyMap.put("address", Property.of(propertyBuilder -> propertyBuilder.text(TextProperty.of(builder -> builder.analyzer("ik_smart")))));
+        propertyMap.put("address", Property.of(propertyBuilder -> propertyBuilder.text(TextProperty.of(builder -> builder
+                .analyzer("ik_smart")
+                .searchAnalyzer("ik_smart")
+        ))));
         propertyMap.put("avgprice", Property.of(propertyBuilder -> propertyBuilder.long_(LongNumberProperty.of(builder -> builder))));
         propertyMap.put("cityid", Property.of(propertyBuilder -> propertyBuilder.integer(IntegerNumberProperty.of(builder -> builder))));
         propertyMap.put("shopid", Property.of(propertyBuilder -> propertyBuilder.integer(IntegerNumberProperty.of(builder -> builder.docValues(Boolean.FALSE)))));
@@ -67,11 +70,13 @@ public class EsClient {
                 .includeTypeName(Boolean.FALSE)
                 .mappings(typeMappingBuilder -> typeMappingBuilder
                         .dynamic(DynamicMapping.False)
+                        .routing(builder -> builder.required(Boolean.FALSE))
                         .properties(propertyMap)
                 )
-                .settings(indexSettingsBuilder -> indexSettingsBuilder
+                .settings(indexSettingsBuilder -> indexSettingsBuilder // .routingPartitionSize(5) (routing必须为true)
                         .numberOfShards("5")
                         .numberOfReplicas("1")
+                        .codec("best_compression")
                 )
         );
 
@@ -103,6 +108,7 @@ public class EsClient {
                 .index("shop")
                 .dynamic(DynamicMapping.False)
                 .includeTypeName(Boolean.FALSE)
+                .routing(builder -> builder.required(Boolean.FALSE))
                 .properties(propertyMap)
         );
         try {
