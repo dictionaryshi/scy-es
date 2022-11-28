@@ -5,6 +5,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.mapping.*;
 import co.elastic.clients.elasticsearch.indices.*;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
+import com.scy.core.format.DateUtil;
 import com.scy.core.format.MessageUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -56,14 +57,26 @@ public class EsClient {
     public boolean createIndex() {
         Map<String, Property> propertyMap = new HashMap<>(16);
         propertyMap.put("address", Property.of(propertyBuilder -> propertyBuilder.text(TextProperty.of(builder -> builder
+                // ik_max_word
                 .analyzer("ik_smart")
                 .searchAnalyzer("ik_smart")
         ))));
         propertyMap.put("avgprice", Property.of(propertyBuilder -> propertyBuilder.long_(LongNumberProperty.of(builder -> builder))));
         propertyMap.put("cityid", Property.of(propertyBuilder -> propertyBuilder.integer(IntegerNumberProperty.of(builder -> builder))));
-        propertyMap.put("shopid", Property.of(propertyBuilder -> propertyBuilder.integer(IntegerNumberProperty.of(builder -> builder.docValues(Boolean.FALSE)))));
+        propertyMap.put("shopid", Property.of(propertyBuilder -> propertyBuilder.integer(IntegerNumberProperty.of(builder -> builder))));
         propertyMap.put("shopname", Property.of(propertyBuilder -> propertyBuilder.keyword(KeywordProperty.of(builder -> builder))));
         propertyMap.put("shoppoi", Property.of(propertyBuilder -> propertyBuilder.geoPoint(GeoPointProperty.of(builder -> builder))));
+        propertyMap.put("operateName", Property.of(propertyBuilder -> propertyBuilder.wildcard(builder -> builder)));
+        propertyMap.put("createdAt", Property.of(propertyBuilder -> propertyBuilder.date(builder -> builder
+                .format(DateUtil.PATTERN_SECOND)
+        )));
+
+        Map<String, Property> userPropertyMap = new HashMap<>(16);
+        userPropertyMap.put("userName", Property.of(propertyBuilder -> propertyBuilder.keyword(KeywordProperty.of(builder -> builder.ignoreAbove(32)))));
+        userPropertyMap.put("age", Property.of(propertyBuilder -> propertyBuilder.integer(IntegerNumberProperty.of(builder -> builder.docValues(Boolean.FALSE)))));
+        propertyMap.put("user", Property.of(propertyBuilder -> propertyBuilder.nested(builder -> builder
+                .properties(userPropertyMap)
+        )));
 
         CreateIndexRequest createIndexRequest = CreateIndexRequest.of(createIndexBuilder -> createIndexBuilder
                 .index("shop")
