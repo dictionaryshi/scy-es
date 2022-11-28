@@ -82,4 +82,10 @@ public class EsClientTest {
         boolean result = esClient.deleteIndex("shop");
         System.out.println();
     }
+
+    @Test
+    public void putSettingsTest() {
+        boolean result = esClient.putSettings();
+        System.out.println();
+    }
 }

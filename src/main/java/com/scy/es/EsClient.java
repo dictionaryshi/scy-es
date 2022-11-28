@@ -107,6 +107,21 @@ public class EsClient {
         }
     }
 
+    public boolean putSettings() {
+        try {
+            PutIndicesSettingsResponse putIndicesSettingsResponse = elasticsearchClient.indices().putSettings(settingsBuilder -> settingsBuilder
+                    .index("shop")
+                    .settings(builder -> builder
+                            .numberOfReplicas("3")
+                    )
+            );
+            return putIndicesSettingsResponse.acknowledged();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Boolean.FALSE;
+        }
+    }
+
     public boolean deleteIndex(String index) {
         try {
             DeleteIndexResponse deleteIndexResponse = elasticsearchClient.indices().delete(deleteBuilder -> deleteBuilder
