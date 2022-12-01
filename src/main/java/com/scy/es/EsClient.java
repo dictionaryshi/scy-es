@@ -61,11 +61,11 @@ public class EsClient {
                 .analyzer("ik_smart")
                 .searchAnalyzer("ik_smart")
         ))));
-        propertyMap.put("avgprice", Property.of(propertyBuilder -> propertyBuilder.long_(LongNumberProperty.of(builder -> builder))));
-        propertyMap.put("cityid", Property.of(propertyBuilder -> propertyBuilder.integer(IntegerNumberProperty.of(builder -> builder))));
-        propertyMap.put("shopid", Property.of(propertyBuilder -> propertyBuilder.integer(IntegerNumberProperty.of(builder -> builder))));
-        propertyMap.put("shopname", Property.of(propertyBuilder -> propertyBuilder.keyword(KeywordProperty.of(builder -> builder))));
-        propertyMap.put("shoppoi", Property.of(propertyBuilder -> propertyBuilder.geoPoint(GeoPointProperty.of(builder -> builder))));
+        propertyMap.put("avgPrice", Property.of(propertyBuilder -> propertyBuilder.long_(LongNumberProperty.of(builder -> builder))));
+        propertyMap.put("cityId", Property.of(propertyBuilder -> propertyBuilder.integer(IntegerNumberProperty.of(builder -> builder))));
+        propertyMap.put("shopId", Property.of(propertyBuilder -> propertyBuilder.integer(IntegerNumberProperty.of(builder -> builder))));
+        propertyMap.put("shopName", Property.of(propertyBuilder -> propertyBuilder.keyword(KeywordProperty.of(builder -> builder))));
+        propertyMap.put("shopPoi", Property.of(propertyBuilder -> propertyBuilder.geoPoint(GeoPointProperty.of(builder -> builder))));
         propertyMap.put("operateName", Property.of(propertyBuilder -> propertyBuilder.wildcard(builder -> builder)));
         propertyMap.put("createdAt", Property.of(propertyBuilder -> propertyBuilder.date(builder -> builder
                 .format(DateUtil.PATTERN_SECOND)
