@@ -1,5 +1,6 @@
 package com.scy.es;
 
+import co.elastic.clients.elasticsearch.core.DeleteResponse;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import com.scy.core.json.JsonUtil;
@@ -102,5 +103,11 @@ public class EsClientTest {
     public void getTest() {
         Shop shop = esClient.get("shop", "1001");
         System.out.println(JsonUtil.object2Json(shop));
+    }
+
+    @Test
+    public void deleteTest() {
+        DeleteResponse deleteResponse = esClient.delete("shop", "1001");
+        System.out.println();
     }
 }
