@@ -1,7 +1,6 @@
 package com.scy.es;
 
-import co.elastic.clients.elasticsearch.core.GetRequest;
-import co.elastic.clients.elasticsearch.core.GetResponse;
+import co.elastic.clients.elasticsearch.core.*;
 import com.scy.es.model.User;
 
 import java.util.Date;
@@ -12,8 +11,6 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.OpType;
 import co.elastic.clients.elasticsearch._types.Refresh;
 import co.elastic.clients.elasticsearch._types.mapping.*;
-import co.elastic.clients.elasticsearch.core.IndexRequest;
-import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.indices.*;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
 import com.scy.core.format.DateUtil;
@@ -231,6 +228,24 @@ public class EsClient {
         }
 
         return null;
+    }
+
+    public DeleteResponse delete(String index, String id) {
+        try {
+            DeleteRequest request = DeleteRequest.of(i -> i
+                    .index(index)
+                    .id(id)
+                    .routing("a")
+                    .refresh(Refresh.WaitFor)
+                    .timeout(builder -> builder
+                            .time("200ms")
+                    )
+            );
+            return elasticsearchClient.delete(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /*
