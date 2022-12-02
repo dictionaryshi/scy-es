@@ -248,45 +248,35 @@ public class EsClient {
         }
     }
 
+    public UpdateResponse<Shop> update(String index, String id) {
+        Shop shop = new Shop();
+        shop.setCityId(2);
+
+        try {
+            UpdateRequest<Shop, Shop> request = UpdateRequest.of(i -> i
+                    .index(index)
+                    .id(id)
+                    .routing("a")
+                    .refresh(Refresh.WaitFor)
+                    .timeout(builder -> builder
+                            .time("200ms")
+                    )
+                    .doc(shop)
+                    .docAsUpsert(Boolean.FALSE)
+                    .retryOnConflict(1)
+                    .source(builder -> builder
+                            .fetch(Boolean.TRUE)
+                    )
+            );
+            return elasticsearchClient.update(request, Shop.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     /*
      *//**
-     * 根据id删除文档
-     *//*
-    public boolean delete(String index, String id) {
-        DeleteRequest request = new DeleteRequest(index, id);
-        request.timeout(TimeValue.timeValueSeconds(5));
-        request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-        try {
-            DeleteResponse deleteResponse = restHighLevelClient.delete(request, RequestOptions.DEFAULT);
-            log.info(MessageUtil.format("ES delete response", "index", index, "id", id, "deleteResponse", deleteResponse));
-            return Boolean.TRUE;
-        } catch (Exception e) {
-            log.error(MessageUtil.format("ES delete error", e, "index", index, "id", id));
-            return Boolean.FALSE;
-        }
-    }
-
-    *//**
-     * 更新文档
-     *//*
-    public String update(String index, String id, String json) {
-        UpdateRequest request = new UpdateRequest(index, id);
-        request.doc(json, XContentType.JSON);
-        request.timeout(TimeValue.timeValueSeconds(5));
-        request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-        request.fetchSource(Boolean.TRUE);
-        try {
-            UpdateResponse updateResponse = restHighLevelClient.update(request, RequestOptions.DEFAULT);
-            log.info(MessageUtil.format("ES update response", "index", index, "id", id, "json", json, "updateResponse", updateResponse));
-            GetResult result = updateResponse.getGetResult();
-            return result.sourceAsString();
-        } catch (Exception e) {
-            log.error(MessageUtil.format("ES update error", e, "index", index, "id", id, "json", json));
-            return StringUtil.EMPTY;
-        }
-    }
-
-    *//**
      * 搜索
      *//*
     public SearchBO search(SearchAO searchAO) {
