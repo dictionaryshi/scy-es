@@ -1,5 +1,6 @@
 package com.scy.es;
 
+import co.elastic.clients.elasticsearch._types.*;
 import co.elastic.clients.elasticsearch.core.*;
 import com.scy.es.model.User;
 
@@ -8,8 +9,6 @@ import java.util.Date;
 import com.scy.es.model.Location;
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.OpType;
-import co.elastic.clients.elasticsearch._types.Refresh;
 import co.elastic.clients.elasticsearch._types.mapping.*;
 import co.elastic.clients.elasticsearch.indices.*;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
@@ -269,6 +268,48 @@ public class EsClient {
                     )
             );
             return elasticsearchClient.update(request, Shop.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public UpdateByQueryResponse updateByQuery(String index) {
+        try {
+            UpdateByQueryRequest request = UpdateByQueryRequest.of(i -> i
+                    .index(index)
+                    .routing("a")
+                    .refresh(Boolean.TRUE)
+                    .scroll(builder -> builder
+                            .time("60s"))
+                    .scrollSize(2000L)
+                    // 设置任务切分的片数, 可以理解为设置并行任务来进行查询, 默认为1, 这个值不建议设置超过10个, 一旦非常大, 会造成CPU飙高。
+                    .slices(builder -> builder
+                            .value(5)
+                    )
+                    // 每秒执行请求数
+                    .requestsPerSecond(1000L)
+                    // 如果出现冲突, 如何处理。proceed:如果冲突, 忽略当前, 继续执行其他的。abort:如果冲突, 直接抛出异常, 中止后续的执行。
+                    .conflicts(Conflicts.Proceed)
+                    // 忽略不可用索引
+                    .ignoreUnavailable(Boolean.TRUE)
+                    // 每个搜索请求的超时
+                    .searchTimeout(builder -> builder
+                            .time("1s")
+                    )
+                    .query(queryBuilder -> queryBuilder
+                            .term(builder -> builder
+                                    .field("cityId")
+                                    .value(1L)
+                            )
+                    )
+                    .script(scriptBuilder -> scriptBuilder
+                            .inline(builder -> builder
+                                    .source("if (ctx._source.avgPrice == 5600) {ctx._source.avgPrice = 9600;}")
+                            )
+                    )
+            );
+            return elasticsearchClient.updateByQuery(request);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

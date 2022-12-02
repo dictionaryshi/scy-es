@@ -3,6 +3,7 @@ package com.scy.es;
 import co.elastic.clients.elasticsearch._types.InlineGet;
 import co.elastic.clients.elasticsearch.core.DeleteResponse;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
+import co.elastic.clients.elasticsearch.core.UpdateByQueryResponse;
 import co.elastic.clients.elasticsearch.core.UpdateResponse;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import com.scy.core.json.JsonUtil;
@@ -118,5 +119,11 @@ public class EsClientTest {
     public void updateTest() {
         UpdateResponse<Shop> response = esClient.update("shop", "1001");
         Optional.ofNullable(response.get()).map(InlineGet::source).ifPresent(shop -> System.out.println(JsonUtil.object2Json(shop)));
+    }
+
+    @Test
+    public void updateByQueryTest() {
+        UpdateByQueryResponse response = esClient.updateByQuery("shop");
+        System.out.println();
     }
 }
