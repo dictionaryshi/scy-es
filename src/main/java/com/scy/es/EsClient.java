@@ -1,5 +1,7 @@
 package com.scy.es;
 
+import co.elastic.clients.elasticsearch.core.GetRequest;
+import co.elastic.clients.elasticsearch.core.GetResponse;
 import com.scy.es.model.User;
 
 import java.util.Date;
@@ -213,23 +215,26 @@ public class EsClient {
         }
     }
 
-    /*
-     *//**
-     * 根据id查询文档
-     *//*
-    public String get(String index, String id) {
-        GetRequest getRequest = new GetRequest(index, id);
+    public Shop get(String index, String id) {
+        GetRequest request = GetRequest.of(i -> i
+                .index(index)
+                .id(id)
+                .routing("a")
+        );
         try {
-            GetResponse getResponse = restHighLevelClient.get(getRequest, RequestOptions.DEFAULT);
-            log.info(MessageUtil.format("ES get response", "index", index, "id", id, "getResponse", getResponse));
-            return getResponse.getSourceAsString();
+            GetResponse<Shop> response = elasticsearchClient.get(request, Shop.class);
+            if (response.found()) {
+                return response.source();
+            }
         } catch (Exception e) {
-            log.error(MessageUtil.format("ES get error", e, "index", index, "id", id));
-            return StringUtil.EMPTY;
+            e.printStackTrace();
         }
+
+        return null;
     }
 
-    *//**
+    /*
+     *//**
      * 根据id删除文档
      *//*
     public boolean delete(String index, String id) {
