@@ -1,7 +1,9 @@
 package com.scy.es;
 
+import co.elastic.clients.elasticsearch._types.InlineGet;
 import co.elastic.clients.elasticsearch.core.DeleteResponse;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
+import co.elastic.clients.elasticsearch.core.UpdateResponse;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import com.scy.core.json.JsonUtil;
 import com.scy.core.thread.ThreadUtil;
@@ -13,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * @author : shichunyang
@@ -109,5 +112,11 @@ public class EsClientTest {
     public void deleteTest() {
         DeleteResponse deleteResponse = esClient.delete("shop", "1001");
         System.out.println();
+    }
+
+    @Test
+    public void updateTest() {
+        UpdateResponse<Shop> response = esClient.update("shop", "1001");
+        Optional.ofNullable(response.get()).map(InlineGet::source).ifPresent(shop -> System.out.println(JsonUtil.object2Json(shop)));
     }
 }
