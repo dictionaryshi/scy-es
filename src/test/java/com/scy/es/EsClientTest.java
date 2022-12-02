@@ -2,8 +2,10 @@ package com.scy.es;
 
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.transport.ElasticsearchTransport;
+import com.scy.core.json.JsonUtil;
 import com.scy.core.thread.ThreadUtil;
 import com.scy.es.config.EsConfig;
+import com.scy.es.model.Shop;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -94,5 +96,11 @@ public class EsClientTest {
     public void indexTest() {
         IndexResponse indexResponse = esClient.index();
         System.out.println();
+    }
+
+    @Test
+    public void getTest() {
+        Shop shop = esClient.get("shop", "1001");
+        System.out.println(JsonUtil.object2Json(shop));
     }
 }
