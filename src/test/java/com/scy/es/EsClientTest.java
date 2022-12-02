@@ -1,5 +1,6 @@
 package com.scy.es;
 
+import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import com.scy.core.thread.ThreadUtil;
 import com.scy.es.config.EsConfig;
@@ -86,6 +87,12 @@ public class EsClientTest {
     @Test
     public void putSettingsTest() {
         boolean result = esClient.putSettings();
+        System.out.println();
+    }
+
+    @Test
+    public void indexTest() {
+        IndexResponse indexResponse = esClient.index();
         System.out.println();
     }
 }
