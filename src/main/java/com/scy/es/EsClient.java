@@ -1,12 +1,22 @@
 package com.scy.es;
 
+import com.scy.es.model.User;
+
+import java.util.Date;
+
+import com.scy.es.model.Location;
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.OpType;
+import co.elastic.clients.elasticsearch._types.Refresh;
 import co.elastic.clients.elasticsearch._types.mapping.*;
+import co.elastic.clients.elasticsearch.core.IndexRequest;
+import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.indices.*;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
 import com.scy.core.format.DateUtil;
 import com.scy.core.format.MessageUtil;
+import com.scy.es.model.Shop;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -171,31 +181,40 @@ public class EsClient {
         }
     }
 
-    /*
-     *//**
-     * 索引文档, 文档存在则替换
-     *//*
-    public String index(String index, String id, String json) {
-        IndexRequest request = new IndexRequest(index);
-        request.id(id);
-        request.source(json, XContentType.JSON);
-        request.timeout(TimeValue.timeValueSeconds(5));
-        // 立即刷新
-        request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-        // 文档存在则替换
-        request.opType(DocWriteRequest.OpType.INDEX);
+    public IndexResponse index() {
+        Shop shop = new Shop();
+        shop.setAddress("胜辛路426号2层222-3号商铺");
+        shop.setAvgPrice(56_00L);
+        shop.setCityId(1);
+        shop.setShopId(10000);
+        shop.setShopName("肯德基");
+        shop.setShopPoi(new Location(121.25092315673828, 31.331241607666016));
+        shop.setOperateName("史春阳");
+        shop.setCreatedAt(new Date());
+        shop.setUser(new User("婷婷", 27));
+
+        IndexRequest<Shop> request = IndexRequest.of(i -> i
+                .index("shop")
+                .id("1001")
+                .document(shop)
+                .routing("a")
+                .opType(OpType.Create)
+                .refresh(Refresh.WaitFor)
+                .timeout(builder -> builder
+                        .time("200ms")
+                )
+        );
 
         try {
-            IndexResponse indexResponse = restHighLevelClient.index(request, RequestOptions.DEFAULT);
-            log.info(MessageUtil.format("ES index response", "index", index, "id", id, "json", json, "indexResponse", indexResponse));
-            return indexResponse.getId();
+            return elasticsearchClient.index(request);
         } catch (Exception e) {
-            log.error(MessageUtil.format("ES index error", e, "index", index, "id", id, "json", json));
-            return StringUtil.EMPTY;
+            e.printStackTrace();
+            return null;
         }
     }
 
-    *//**
+    /*
+     *//**
      * 根据id查询文档
      *//*
     public String get(String index, String id) {
