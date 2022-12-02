@@ -1,10 +1,7 @@
 package com.scy.es;
 
 import co.elastic.clients.elasticsearch._types.InlineGet;
-import co.elastic.clients.elasticsearch.core.DeleteResponse;
-import co.elastic.clients.elasticsearch.core.IndexResponse;
-import co.elastic.clients.elasticsearch.core.UpdateByQueryResponse;
-import co.elastic.clients.elasticsearch.core.UpdateResponse;
+import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import com.scy.core.json.JsonUtil;
 import com.scy.core.thread.ThreadUtil;
@@ -124,6 +121,12 @@ public class EsClientTest {
     @Test
     public void updateByQueryTest() {
         UpdateByQueryResponse response = esClient.updateByQuery("shop");
+        System.out.println();
+    }
+
+    @Test
+    public void deleteByQueryTest() {
+        DeleteByQueryResponse response = esClient.deleteByQuery("shop");
         System.out.println();
     }
 }
