@@ -3,6 +3,7 @@ package com.scy.es;
 import co.elastic.clients.elasticsearch._types.InlineGet;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.transport.ElasticsearchTransport;
+import com.scy.core.CollectionUtil;
 import com.scy.core.json.JsonUtil;
 import com.scy.core.thread.ThreadUtil;
 import com.scy.es.config.EsConfig;
@@ -13,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -127,6 +129,13 @@ public class EsClientTest {
     @Test
     public void deleteByQueryTest() {
         DeleteByQueryResponse response = esClient.deleteByQuery("shop");
+        System.out.println();
+    }
+
+    @Test
+    public void bulkTest() {
+        List<Shop> shops = CollectionUtil.newArrayList();
+        BulkResponse response = esClient.bulk(shops);
         System.out.println();
     }
 }

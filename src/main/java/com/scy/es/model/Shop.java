@@ -18,6 +18,8 @@ import java.util.Date;
 @ToString
 public class Shop {
 
+    private String id;
+
     private String address;
 
     private Long avgPrice;
