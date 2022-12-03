@@ -2,9 +2,10 @@ package com.scy.es;
 
 import co.elastic.clients.elasticsearch._types.*;
 import co.elastic.clients.elasticsearch.core.*;
+import co.elastic.clients.elasticsearch.core.bulk.BulkResponseItem;
 import com.scy.es.model.User;
 
-import java.util.Date;
+import java.util.*;
 
 import com.scy.es.model.Location;
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
@@ -18,9 +19,6 @@ import com.scy.es.model.Shop;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -220,6 +218,7 @@ public class EsClient {
         try {
             GetResponse<Shop> response = elasticsearchClient.get(request, Shop.class);
             if (response.found()) {
+                Optional.ofNullable(response.source()).ifPresent(shop -> shop.setId(response.id()));
                 return response.source();
             }
         } catch (Exception e) {
@@ -347,6 +346,40 @@ public class EsClient {
                     )
             );
             return elasticsearchClient.deleteByQuery(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public BulkResponse bulk(List<Shop> shops) {
+        BulkRequest.Builder builder = new BulkRequest.Builder();
+        builder.refresh(Refresh.WaitFor);
+        builder.timeout(t -> t
+                .time("1s"));
+
+        for (Shop shop : shops) {
+            builder.operations(op -> op
+                    .create(i -> i
+                            .index("shop")
+                            .id(shop.getId())
+                            .document(shop)
+                            .routing("a")
+                    )
+
+            );
+        }
+
+        try {
+            BulkResponse response = elasticsearchClient.bulk(builder.build());
+            if (response.errors()) {
+                for (BulkResponseItem item : response.items()) {
+                    if (item.error() != null) {
+                        System.out.println(item.error().reason());
+                    }
+                }
+            }
+            return response;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
