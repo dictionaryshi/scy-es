@@ -1,8 +1,10 @@
 package com.scy.es;
 
+import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.InlineGet;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.transport.ElasticsearchTransport;
+import com.google.common.collect.Lists;
 import com.scy.core.CollectionUtil;
 import com.scy.core.json.JsonUtil;
 import com.scy.core.thread.ThreadUtil;
@@ -146,6 +148,16 @@ public class EsClientTest {
                         .field("cityId")
                         .value(1L))
         );
+        System.out.println();
+    }
+
+    @Test
+    public void termsQueryTest() {
+        SearchResponse<Shop> response = esClient.search("shop", builder -> builder
+                .terms(t -> t
+                        .field("cityId")
+                        .terms(b -> b.value(Lists.newArrayList(FieldValue.of(1L), FieldValue.of(2L))))
+                ));
         System.out.println();
     }
 }
