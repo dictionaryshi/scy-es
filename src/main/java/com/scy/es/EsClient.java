@@ -1,8 +1,13 @@
 package com.scy.es;
 
 import co.elastic.clients.elasticsearch._types.*;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.bulk.BulkResponseItem;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.TotalHits;
+import co.elastic.clients.elasticsearch.core.search.TotalHitsRelation;
+import co.elastic.clients.util.ObjectBuilder;
 import com.scy.es.model.User;
 
 import java.util.*;
@@ -20,6 +25,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 /**
  * EsClient
@@ -386,51 +392,42 @@ public class EsClient {
         }
     }
 
-    /*
-     *//**
-     * 搜索
-     *//*
-    public SearchBO search(SearchAO searchAO) {
-        SearchRequest searchRequest = new SearchRequest(searchAO.getIndexes().toArray(ArrayUtil.EMPTY_STRING_ARRAY));
-        // 忽略不存在的索引
-        searchRequest.indicesOptions(IndicesOptions.lenientExpandOpen());
-
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.query(searchAO.getQueryBuilder());
-        searchSourceBuilder.from(searchAO.getFrom());
-        searchSourceBuilder.size(searchAO.getSize());
-        searchSourceBuilder.timeout(new TimeValue(searchAO.getTimeoutSeconds(), TimeUnit.SECONDS));
-
-        if (!CollectionUtil.isEmpty(searchAO.getSortBuilders())) {
-            searchAO.getSortBuilders().forEach(searchSourceBuilder::sort);
-        }
-
-        if (!ObjectUtil.isNull(searchAO.getAggregationBuilder())) {
-            searchSourceBuilder.aggregation(searchAO.getAggregationBuilder());
-        }
-        searchRequest.source(searchSourceBuilder);
-
+    public SearchResponse<Shop> search(String index, Function<Query.Builder, ObjectBuilder<Query>> queryBuilder) {
         try {
-            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-            log.info(MessageUtil.format("ES search response", "indexes", searchAO.getIndexes(), "queryBuilder", searchAO.getQueryBuilder(), "searchAO", searchAO, "searchResponse", searchResponse));
-            return convertSearchResponse(searchResponse);
+            SearchResponse<Shop> response = elasticsearchClient.search(s -> s
+                            .index("shop")
+                            .routing("a")
+                            .timeout("500ms")
+                            .allowPartialSearchResults(Boolean.TRUE)
+                            .ignoreUnavailable(Boolean.TRUE)
+                            .searchType(SearchType.QueryThenFetch)
+                            .maxConcurrentShardRequests(5L)
+                            .from(0)
+                            .size(30)
+                            .query(queryBuilder)
+                    , Shop.class
+            );
+
+            TotalHits total = response.hits().total();
+            boolean isExactResult = total.relation() == TotalHitsRelation.Eq;
+
+            if (isExactResult) {
+                System.out.println("There are " + total.value() + " results");
+            } else {
+                System.out.println("There are more than " + total.value() + " results");
+            }
+
+            List<Hit<Shop>> hits = response.hits().hits();
+            for (Hit<Shop> hit : hits) {
+                Shop shop = hit.source();
+                shop.setId(hit.id());
+                System.out.println("Found product " + shop + ", score " + hit.score());
+            }
+
+            return response;
         } catch (Exception e) {
-            log.error(MessageUtil.format("ES search error", e, "indexes", searchAO.getIndexes(), "queryBuilder", searchAO.getQueryBuilder(), "searchAO", searchAO));
+            e.printStackTrace();
             return null;
         }
     }
-
-    private SearchBO convertSearchResponse(SearchResponse searchResponse) {
-        SearchHits hits = searchResponse.getHits();
-
-        SearchBO searchBO = new SearchBO();
-        searchBO.setTotal(hits.getTotalHits().value);
-
-        SearchHit[] searchHits = hits.getHits();
-        List<String> documents = Stream.of(searchHits).map(SearchHit::getSourceAsString).collect(Collectors.toList());
-        searchBO.setDocuments(documents);
-
-        searchBO.setAggregations(searchResponse.getAggregations());
-        return searchBO;
-    }*/
 }
