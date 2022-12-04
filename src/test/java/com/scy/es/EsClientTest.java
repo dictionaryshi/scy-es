@@ -138,4 +138,14 @@ public class EsClientTest {
         BulkResponse response = esClient.bulk(shops);
         System.out.println();
     }
+
+    @Test
+    public void termQueryTest() {
+        SearchResponse<Shop> response = esClient.search("shop", builder -> builder
+                .term(t -> t
+                        .field("cityId")
+                        .value(1L))
+        );
+        System.out.println();
+    }
 }
