@@ -189,4 +189,20 @@ public class EsClientTest {
                 ))));
         System.out.println();
     }
+
+    @Test
+    public void prefixQueryTest() {
+        SearchResponse<Shop> response = esClient.search("shop", builder -> builder
+                        .prefix(p -> p.field("shopName").value("肯德"))
+                , Lists.newArrayList());
+        System.out.println();
+    }
+
+    @Test
+    public void fuzzyQueryTest() {
+        SearchResponse<Shop> response = esClient.search("shop", builder -> builder
+                        .fuzzy(f -> f.field("address").value("426号").fuzziness("2").maxExpansions(1).transpositions(Boolean.FALSE))
+                , Lists.newArrayList());
+        System.out.println();
+    }
 }
