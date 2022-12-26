@@ -201,7 +201,7 @@ public class EsClientTest {
     @Test
     public void fuzzyQueryTest() {
         SearchResponse<Shop> response = esClient.search("shop", builder -> builder
-                        .fuzzy(f -> f.field("address").value("426号").fuzziness("2").maxExpansions(1).transpositions(Boolean.FALSE))
+                        .fuzzy(f -> f.field("address").value("426写错").prefixLength(3).fuzziness("2").maxExpansions(1).transpositions(Boolean.FALSE))
                 , Lists.newArrayList());
         System.out.println();
     }
