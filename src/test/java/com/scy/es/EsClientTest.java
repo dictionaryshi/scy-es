@@ -1,15 +1,17 @@
 package com.scy.es;
 
-import co.elastic.clients.elasticsearch._types.FieldValue;
-import co.elastic.clients.elasticsearch._types.InlineGet;
+import co.elastic.clients.elasticsearch._types.*;
+import co.elastic.clients.elasticsearch._types.query_dsl.GeoValidationMethod;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import com.google.common.collect.Lists;
 import com.scy.core.CollectionUtil;
+import com.scy.core.GeoUtil;
 import com.scy.core.json.JsonUtil;
 import com.scy.core.thread.ThreadUtil;
 import com.scy.es.config.EsConfig;
 import com.scy.es.model.Shop;
+import org.gavaghan.geodesy.GlobalCoordinates;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -144,10 +146,10 @@ public class EsClientTest {
     @Test
     public void termQueryTest() {
         SearchResponse<Shop> response = esClient.search("shop", builder -> builder
-                .term(t -> t
-                        .field("cityId")
-                        .value(1L))
-        );
+                        .term(t -> t
+                                .field("cityId")
+                                .value(1L))
+                , Lists.newArrayList());
         System.out.println();
     }
 
@@ -157,7 +159,34 @@ public class EsClientTest {
                 .terms(t -> t
                         .field("cityId")
                         .terms(b -> b.value(Lists.newArrayList(FieldValue.of(1L), FieldValue.of(2L))))
-                ));
+                ), Lists.newArrayList());
+        System.out.println();
+    }
+
+    @Test
+    public void geoDistanceQueryTest() {
+        double distance = GeoUtil.getDistance(new GlobalCoordinates(31.358, 121.25092315673828), new GlobalCoordinates(31.331241607666016, 121.25092315673828));
+
+        SearchResponse<Shop> response = esClient.search("shop", builder -> builder
+                        .bool(boolQueryBuilder -> boolQueryBuilder
+                                .must(a -> a.term(t -> t.field("shopName").value("肯德基")))
+                                .must(b -> b.geoDistance(g -> g
+                                        .field("shopPoi")
+                                        .validationMethod(GeoValidationMethod.IgnoreMalformed)
+                                        .location(ge -> ge.latlon(l -> l.lon(121.25092315673828).lat(31.358)))
+                                        .distance("2976m")
+                                        .distanceType(GeoDistanceType.Arc)
+                                ))
+                        )
+                , Lists.newArrayList(SortOptions.of(s -> s.geoDistance(g -> g
+                        .location(ge -> ge.latlon(l -> l.lon(121.25092315673828).lat(31.358)))
+                        .distanceType(GeoDistanceType.Arc)
+                        .field("shopPoi")
+                        .order(SortOrder.Asc)
+                        .mode(SortMode.Min)
+                        .unit(DistanceUnit.Meters)
+                        .ignoreUnmapped(Boolean.FALSE)
+                ))));
         System.out.println();
     }
 }
