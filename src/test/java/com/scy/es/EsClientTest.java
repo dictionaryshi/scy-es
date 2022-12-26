@@ -172,7 +172,7 @@ public class EsClientTest {
                                 .must(a -> a.term(t -> t.field("shopName").value("肯德基")))
                                 .must(b -> b.geoDistance(g -> g
                                         .field("shopPoi")
-                                        .validationMethod(GeoValidationMethod.IgnoreMalformed)
+                                        .validationMethod(GeoValidationMethod.Strict)
                                         .location(ge -> ge.latlon(l -> l.lon(121.25092315673828).lat(31.358)))
                                         .distance("2976m")
                                         .distanceType(GeoDistanceType.Arc)
