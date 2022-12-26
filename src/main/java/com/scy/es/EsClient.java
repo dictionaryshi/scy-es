@@ -392,7 +392,7 @@ public class EsClient {
         }
     }
 
-    public SearchResponse<Shop> search(String index, Function<Query.Builder, ObjectBuilder<Query>> queryBuilder) {
+    public SearchResponse<Shop> search(String index, Function<Query.Builder, ObjectBuilder<Query>> queryBuilder, List<SortOptions> sortOptions) {
         try {
             SearchResponse<Shop> response = elasticsearchClient.search(s -> s
                             .index("shop")
@@ -405,6 +405,7 @@ public class EsClient {
                             .from(0)
                             .size(30)
                             .query(queryBuilder)
+                            .sort(sortOptions)
                     , Shop.class
             );
 
