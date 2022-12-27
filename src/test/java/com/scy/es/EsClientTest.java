@@ -205,4 +205,20 @@ public class EsClientTest {
                 , Lists.newArrayList());
         System.out.println();
     }
+
+    @Test
+    public void wildcardQueryTest() {
+        SearchResponse<Shop> response = esClient.search("shop", builder -> builder
+                        .wildcard(w -> w.field("operateName").wildcard("史春*"))
+                , Lists.newArrayList());
+        System.out.println();
+    }
+
+    @Test
+    public void regexQueryTest() {
+        SearchResponse<Shop> response = esClient.search("shop", builder -> builder
+                        .regexp(r -> r.field("shopName").value("肯.+"))
+                , Lists.newArrayList());
+        System.out.println();
+    }
 }
