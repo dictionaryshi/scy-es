@@ -233,4 +233,23 @@ public class EsClientTest {
                 , Lists.newArrayList());
         System.out.println();
     }
+
+    @Test
+    public void boolQueryTest() {
+        SearchResponse<Shop> response = esClient.search("shop", builder -> builder
+                        .bool(b -> b
+                                .should(s1 -> s1.bool(b1 -> b1
+                                        .filter(f -> f.term(t -> t.field("shopId").value(10000)))
+                                        .must(m -> m.term(t -> t.field("cityId").value(1)))
+                                        .mustNot(mn -> mn.term(t -> t.field("shopName").value("华莱士")))
+                                ))
+                                .should(s2 -> s2.bool(b2 -> b2
+                                        .must(m -> m.range(r -> r.field("createdAt")
+                                                .format(DateUtil.PATTERN_SECOND)
+                                                .gte(JsonData.of("2022-12-28 11:24:04")).lte(JsonData.of("2022-12-28 11:24:04"))))
+                                ))
+                        )
+                , Lists.newArrayList());
+        System.out.println();
+    }
 }
