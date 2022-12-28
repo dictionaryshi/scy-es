@@ -3,10 +3,12 @@ package com.scy.es;
 import co.elastic.clients.elasticsearch._types.*;
 import co.elastic.clients.elasticsearch._types.query_dsl.GeoValidationMethod;
 import co.elastic.clients.elasticsearch.core.*;
+import co.elastic.clients.json.JsonData;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import com.google.common.collect.Lists;
 import com.scy.core.CollectionUtil;
 import com.scy.core.GeoUtil;
+import com.scy.core.format.DateUtil;
 import com.scy.core.json.JsonUtil;
 import com.scy.core.thread.ThreadUtil;
 import com.scy.es.config.EsConfig;
@@ -218,6 +220,16 @@ public class EsClientTest {
     public void regexQueryTest() {
         SearchResponse<Shop> response = esClient.search("shop", builder -> builder
                         .regexp(r -> r.field("shopName").value("肯.+"))
+                , Lists.newArrayList());
+        System.out.println();
+    }
+
+    @Test
+    public void rangeQueryTest() {
+        SearchResponse<Shop> response = esClient.search("shop", builder -> builder
+                        .range(r -> r.field("createdAt")
+                                .format(DateUtil.PATTERN_SECOND)
+                                .gte(JsonData.of("2022-12-23 19:18:18")).lte(JsonData.of("2022-12-23 19:18:18")))
                 , Lists.newArrayList());
         System.out.println();
     }
