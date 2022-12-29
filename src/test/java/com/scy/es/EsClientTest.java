@@ -263,11 +263,23 @@ public class EsClientTest {
                                 .query("426写错")
                                 .fuzziness("AUTO")
                                 .prefixLength(1)
-                                .maxExpansions(1)
+                                .maxExpansions(10)
                                 .fuzzyTranspositions(Boolean.FALSE)
                                 .operator(Operator.Or)
                                 .autoGenerateSynonymsPhraseQuery(Boolean.TRUE)
                                 .lenient(Boolean.FALSE)
+                                .zeroTermsQuery(ZeroTermsQuery.All)
+                        )
+                , Lists.newArrayList());
+        System.out.println();
+    }
+
+    @Test
+    public void matchPhraseTest() {
+        SearchResponse<Shop> response = esClient.search("shop", builder -> builder
+                        .matchPhrase(m -> m
+                                .field("address")
+                                .query("胜辛路426号")
                                 .zeroTermsQuery(ZeroTermsQuery.All)
                         )
                 , Lists.newArrayList());
