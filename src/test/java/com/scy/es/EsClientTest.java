@@ -2,6 +2,8 @@ package com.scy.es;
 
 import co.elastic.clients.elasticsearch._types.*;
 import co.elastic.clients.elasticsearch._types.query_dsl.GeoValidationMethod;
+import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
+import co.elastic.clients.elasticsearch._types.query_dsl.ZeroTermsQuery;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.json.JsonData;
 import co.elastic.clients.transport.ElasticsearchTransport;
@@ -203,7 +205,7 @@ public class EsClientTest {
     @Test
     public void fuzzyQueryTest() {
         SearchResponse<Shop> response = esClient.search("shop", builder -> builder
-                        .fuzzy(f -> f.field("address").value("426写错").prefixLength(3).fuzziness("2").maxExpansions(1).transpositions(Boolean.FALSE))
+                        .fuzzy(f -> f.field("address").value("426写错").fuzziness("2").prefixLength(1).maxExpansions(1).transpositions(Boolean.FALSE))
                 , Lists.newArrayList());
         System.out.println();
     }
@@ -248,6 +250,37 @@ public class EsClientTest {
                                                 .format(DateUtil.PATTERN_SECOND)
                                                 .gte(JsonData.of("2022-12-28 11:24:04")).lte(JsonData.of("2022-12-28 11:24:04"))))
                                 ))
+                        )
+                , Lists.newArrayList());
+        System.out.println();
+    }
+
+    @Test
+    public void matchQueryTest() {
+        SearchResponse<Shop> response = esClient.search("shop", builder -> builder
+                        .match(m -> m
+                                .field("address")
+                                .query("426写错")
+                                .fuzziness("AUTO")
+                                .prefixLength(1)
+                                .maxExpansions(10)
+                                .fuzzyTranspositions(Boolean.FALSE)
+                                .operator(Operator.Or)
+                                .autoGenerateSynonymsPhraseQuery(Boolean.TRUE)
+                                .lenient(Boolean.FALSE)
+                                .zeroTermsQuery(ZeroTermsQuery.All)
+                        )
+                , Lists.newArrayList());
+        System.out.println();
+    }
+
+    @Test
+    public void matchPhraseTest() {
+        SearchResponse<Shop> response = esClient.search("shop", builder -> builder
+                        .matchPhrase(m -> m
+                                .field("address")
+                                .query("胜辛路426号")
+                                .zeroTermsQuery(ZeroTermsQuery.All)
                         )
                 , Lists.newArrayList());
         System.out.println();
