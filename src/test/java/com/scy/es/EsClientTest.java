@@ -285,4 +285,12 @@ public class EsClientTest {
                 , Lists.newArrayList());
         System.out.println();
     }
+
+    @Test
+    public void idsQueryTest() {
+        SearchResponse<Shop> response = esClient.search("shop", builder -> builder
+                        .ids(i -> i.values(CollectionUtil.newArrayList("1001", "1002")))
+                , Lists.newArrayList());
+        System.out.println();
+    }
 }
