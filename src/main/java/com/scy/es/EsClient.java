@@ -4,6 +4,12 @@ import co.elastic.clients.elasticsearch._types.*;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.bulk.BulkResponseItem;
+import co.elastic.clients.elasticsearch.core.get.GetResult;
+import co.elastic.clients.elasticsearch.core.mget.MultiGetOperation;
+import co.elastic.clients.elasticsearch.core.mget.MultiGetResponseItem;
+import co.elastic.clients.elasticsearch.core.msearch.MultiSearchItem;
+import co.elastic.clients.elasticsearch.core.msearch.MultiSearchResponseItem;
+import co.elastic.clients.elasticsearch.core.msearch.RequestItem;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.TotalHits;
 import co.elastic.clients.elasticsearch.core.search.TotalHitsRelation;
@@ -484,6 +490,90 @@ public class EsClient {
 
             ClearScrollResponse clearScrollResponse = elasticsearchClient.clearScroll(c -> c.scrollId(CollectionUtil.newArrayList(scrollId)));
             System.out.println();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void mget(String index) {
+        try {
+            MgetResponse<Shop> response = elasticsearchClient.mget(mg -> mg
+                            .docs(CollectionUtil.newArrayList(MultiGetOperation.of(m -> m.index("shop").routing("a").id("1001")),
+                                    MultiGetOperation.of(m -> m.index("shop").routing("a").id("1002"))))
+                    , Shop.class);
+
+            List<MultiGetResponseItem<Shop>> docs = response.docs();
+            for (MultiGetResponseItem<Shop> doc : docs) {
+                if (doc.isResult()) {
+                    GetResult<Shop> result = doc.result();
+                    if (result.found()) {
+                        Shop shop = result.source();
+                        shop.setId(result.id());
+                        System.out.println("Found product " + shop);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void msearch(String index) {
+        try {
+            MsearchResponse<Shop> response = elasticsearchClient.msearch(ms -> ms
+                            .maxConcurrentShardRequests(5L)
+                            .searches(CollectionUtil.newArrayList(RequestItem.of(r -> r.body(b -> b
+                                    .timeout("500ms")
+                                    .from(0)
+                                    .size(30)
+                                    .query(q -> q.matchAll(m -> m))
+                            ).header(h -> h
+                                    .index(index)
+                                    .routing("a")
+                                    .allowPartialSearchResults(Boolean.TRUE)
+                                    .allowNoIndices(Boolean.TRUE)
+                                    .ignoreUnavailable(Boolean.TRUE)
+                                    .searchType(SearchType.QueryThenFetch)
+                            )), RequestItem.of(r -> r.body(b -> b
+                                    .timeout("500ms")
+                                    .from(0)
+                                    .size(30)
+                                    .query(q -> q.matchAll(m -> m))
+                            ).header(h -> h
+                                    .index(index)
+                                    .routing("a")
+                                    .allowPartialSearchResults(Boolean.TRUE)
+                                    .allowNoIndices(Boolean.TRUE)
+                                    .ignoreUnavailable(Boolean.TRUE)
+                                    .searchType(SearchType.QueryThenFetch)
+                            ))))
+                    , Shop.class);
+
+            long took = response.took();
+            List<MultiSearchResponseItem<Shop>> responses = response.responses();
+            for (MultiSearchResponseItem<Shop> multiSearchResponseItem : responses) {
+                if (multiSearchResponseItem.isResult()) {
+                    MultiSearchItem<Shop> result = multiSearchResponseItem.result();
+
+                    TotalHits total = result.hits().total();
+                    boolean isExactResult = total.relation() == TotalHitsRelation.Eq;
+
+                    if (isExactResult) {
+                        System.out.println("There are " + total.value() + " results");
+                    } else {
+                        System.out.println("There are more than " + total.value() + " results");
+                    }
+
+                    took = result.took();
+
+                    List<Hit<Shop>> hits = result.hits().hits();
+                    for (Hit<Shop> hit : hits) {
+                        Shop shop = hit.source();
+                        shop.setId(hit.id());
+                        System.out.println("Found product " + shop + ", score " + hit.score());
+                    }
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

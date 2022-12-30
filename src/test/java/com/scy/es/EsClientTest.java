@@ -298,4 +298,14 @@ public class EsClientTest {
     public void scrollQueryTest() {
         esClient.scroll("shop");
     }
+
+    @Test
+    public void mgetQueryTest() {
+        esClient.mget("shop");
+    }
+
+    @Test
+    public void msearchQueryTest() {
+        esClient.msearch("shop");
+    }
 }
