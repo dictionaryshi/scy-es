@@ -413,6 +413,7 @@ public class EsClient {
                             .size(30)
                             .query(queryBuilder)
                             .sort(sortOptions)
+//                            .highlight(h -> h.fields("address", HighlightField.of(hi -> hi.highlightQuery(queryBuilder))))
                     , Shop.class
             );
 
