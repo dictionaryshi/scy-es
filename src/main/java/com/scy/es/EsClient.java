@@ -8,6 +8,7 @@ import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.TotalHits;
 import co.elastic.clients.elasticsearch.core.search.TotalHitsRelation;
 import co.elastic.clients.util.ObjectBuilder;
+import com.scy.core.CollectionUtil;
 import com.scy.es.model.User;
 
 import java.util.*;
@@ -429,6 +430,62 @@ public class EsClient {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public void scroll(String index) {
+        try {
+            SearchResponse<Shop> response = elasticsearchClient.search(s -> s
+                            .index(index)
+                            .routing("a")
+                            .timeout("500ms")
+                            .allowPartialSearchResults(Boolean.TRUE)
+                            .ignoreUnavailable(Boolean.TRUE)
+                            .searchType(SearchType.QueryThenFetch)
+                            .maxConcurrentShardRequests(5L)
+                            .from(0)
+                            .size(1)
+                            .query(q -> q.matchAll(m -> m))
+                            .scroll(sc -> sc.time("60s"))
+                    , Shop.class
+            );
+
+            TotalHits total = response.hits().total();
+            boolean isExactResult = total.relation() == TotalHitsRelation.Eq;
+
+            if (isExactResult) {
+                System.out.println("There are " + total.value() + " results");
+            } else {
+                System.out.println("There are more than " + total.value() + " results");
+            }
+
+            List<Hit<Shop>> hits = response.hits().hits();
+            for (Hit<Shop> hit : hits) {
+                Shop shop = hit.source();
+                shop.setId(hit.id());
+                System.out.println("Found product " + shop + ", score " + hit.score());
+            }
+
+            String scrollId = response.scrollId();
+            ScrollResponse<Shop> scroll = null;
+            do {
+                scroll = elasticsearchClient.scroll(s -> s
+                                .scrollId(scrollId)
+                                .scroll(sc -> sc.time("60s"))
+                        , Shop.class);
+
+                hits = scroll.hits().hits();
+                for (Hit<Shop> hit : hits) {
+                    Shop shop = hit.source();
+                    shop.setId(hit.id());
+                    System.out.println("Found product " + shop + ", score " + hit.score());
+                }
+            } while (hits.size() > 0);
+
+            ClearScrollResponse clearScrollResponse = elasticsearchClient.clearScroll(c -> c.scrollId(CollectionUtil.newArrayList(scrollId)));
+            System.out.println();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

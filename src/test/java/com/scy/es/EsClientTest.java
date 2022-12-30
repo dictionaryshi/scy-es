@@ -293,4 +293,9 @@ public class EsClientTest {
                 , Lists.newArrayList());
         System.out.println();
     }
+
+    @Test
+    public void scrollQueryTest() {
+        esClient.scroll("shop");
+    }
 }
