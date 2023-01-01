@@ -308,4 +308,10 @@ public class EsClientTest {
     public void msearchQueryTest() {
         esClient.msearch("shop");
     }
+
+    @Test
+    public void suggest() {
+        SearchResponse<Shop> response = esClient.suggest("shop");
+        System.out.println();
+    }
 }

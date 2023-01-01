@@ -10,9 +10,7 @@ import co.elastic.clients.elasticsearch.core.mget.MultiGetResponseItem;
 import co.elastic.clients.elasticsearch.core.msearch.MultiSearchItem;
 import co.elastic.clients.elasticsearch.core.msearch.MultiSearchResponseItem;
 import co.elastic.clients.elasticsearch.core.msearch.RequestItem;
-import co.elastic.clients.elasticsearch.core.search.Hit;
-import co.elastic.clients.elasticsearch.core.search.TotalHits;
-import co.elastic.clients.elasticsearch.core.search.TotalHitsRelation;
+import co.elastic.clients.elasticsearch.core.search.*;
 import co.elastic.clients.util.ObjectBuilder;
 import com.scy.core.CollectionUtil;
 import com.scy.es.model.User;
@@ -83,7 +81,7 @@ public class EsClient {
         propertyMap.put("avgPrice", Property.of(propertyBuilder -> propertyBuilder.long_(LongNumberProperty.of(builder -> builder))));
         propertyMap.put("cityId", Property.of(propertyBuilder -> propertyBuilder.integer(IntegerNumberProperty.of(builder -> builder))));
         propertyMap.put("shopId", Property.of(propertyBuilder -> propertyBuilder.integer(IntegerNumberProperty.of(builder -> builder))));
-        propertyMap.put("shopName", Property.of(propertyBuilder -> propertyBuilder.keyword(KeywordProperty.of(builder -> builder))));
+        propertyMap.put("shopName", Property.of(propertyBuilder -> propertyBuilder.keyword(KeywordProperty.of(builder -> builder.fields("completion", f -> f.completion(c -> c.analyzer("ik_smart")))))));
         propertyMap.put("shopPoi", Property.of(propertyBuilder -> propertyBuilder.geoPoint(GeoPointProperty.of(builder -> builder))));
         propertyMap.put("operateName", Property.of(propertyBuilder -> propertyBuilder.wildcard(builder -> builder)));
         propertyMap.put("createdAt", Property.of(propertyBuilder -> propertyBuilder.date(builder -> builder
@@ -577,6 +575,39 @@ public class EsClient {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public SearchResponse<Shop> suggest(String index) {
+        try {
+            SearchResponse<Shop> response = elasticsearchClient.search(s -> s
+                            .index(index)
+                            .routing("a")
+                            .timeout("500ms")
+                            .allowPartialSearchResults(Boolean.TRUE)
+                            .ignoreUnavailable(Boolean.TRUE)
+                            .searchType(SearchType.QueryThenFetch)
+                            .maxConcurrentShardRequests(5L)
+                            .suggest(sug -> sug
+                                    .suggesters("shopNameSug", su -> su
+                                            .completion(c -> c.field("shopName.completion").size(10).skipDuplicates(Boolean.TRUE))
+                                            .text("笔记本")
+                                    ))
+                    , Shop.class
+            );
+
+            Map<String, List<Suggestion<Shop>>> suggest = response.suggest();
+            Suggestion<Shop> shopNameSug = suggest.get("shopNameSug").get(0);
+            CompletionSuggest<Shop> completion = shopNameSug.completion();
+            List<CompletionSuggestOption<Shop>> options = completion.options();
+            for (CompletionSuggestOption<Shop> option : options) {
+                String text = option.text();
+                System.out.println(text);
+            }
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }
