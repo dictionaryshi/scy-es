@@ -404,6 +404,7 @@ public class EsClient {
                             .routing("a")
                             .timeout("500ms")
                             .allowPartialSearchResults(Boolean.TRUE)
+                            .allowNoIndices(Boolean.TRUE)
                             .ignoreUnavailable(Boolean.TRUE)
                             .searchType(SearchType.QueryThenFetch)
                             .maxConcurrentShardRequests(5L)
@@ -604,6 +605,52 @@ public class EsClient {
                 String text = option.text();
                 System.out.println(text);
             }
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public SearchResponse<Shop> metric() {
+        try {
+            SearchResponse<Shop> response = elasticsearchClient.search(s -> s
+                            .index("shop")
+                            .routing("a")
+                            .timeout("500ms")
+                            .allowPartialSearchResults(Boolean.TRUE)
+                            .allowNoIndices(Boolean.TRUE)
+                            .ignoreUnavailable(Boolean.TRUE)
+                            .searchType(SearchType.QueryThenFetch)
+                            .maxConcurrentShardRequests(5L)
+                            .from(0)
+                            .size(30)
+                            .query(q -> q.matchAll(m -> m))
+                            .aggregations("avg", a -> a.avg(av -> av.field("avgPrice")))
+                            .aggregations("sum", a -> a.sum(su -> su.field("avgPrice")))
+                            .aggregations("min", a -> a.min(mi -> mi.field("avgPrice")))
+                            .aggregations("max", a -> a.max(ma -> ma.field("avgPrice")))
+                            .aggregations("cardinality", a -> a.cardinality(ca -> ca.field("avgPrice")))
+                            .aggregations("stats", a -> a.stats((st -> st.field("avgPrice"))))
+                    , Shop.class
+            );
+
+            TotalHits total = response.hits().total();
+            boolean isExactResult = total.relation() == TotalHitsRelation.Eq;
+
+            if (isExactResult) {
+                System.out.println("There are " + total.value() + " results");
+            } else {
+                System.out.println("There are more than " + total.value() + " results");
+            }
+
+            List<Hit<Shop>> hits = response.hits().hits();
+            for (Hit<Shop> hit : hits) {
+                Shop shop = hit.source();
+                shop.setId(hit.id());
+                System.out.println("Found product " + shop + ", score " + hit.score());
+            }
+
             return response;
         } catch (Exception e) {
             e.printStackTrace();

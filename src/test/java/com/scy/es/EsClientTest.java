@@ -314,4 +314,10 @@ public class EsClientTest {
         SearchResponse<Shop> response = esClient.suggest("shop");
         System.out.println();
     }
+
+    @Test
+    public void metric() {
+        SearchResponse<Shop> response = esClient.metric();
+        System.out.println();
+    }
 }
