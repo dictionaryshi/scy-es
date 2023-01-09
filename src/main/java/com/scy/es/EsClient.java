@@ -11,6 +11,7 @@ import co.elastic.clients.elasticsearch.core.msearch.MultiSearchItem;
 import co.elastic.clients.elasticsearch.core.msearch.MultiSearchResponseItem;
 import co.elastic.clients.elasticsearch.core.msearch.RequestItem;
 import co.elastic.clients.elasticsearch.core.search.*;
+import co.elastic.clients.util.NamedValue;
 import co.elastic.clients.util.ObjectBuilder;
 import com.scy.core.CollectionUtil;
 import com.scy.es.model.User;
@@ -632,6 +633,9 @@ public class EsClient {
                             .aggregations("max", a -> a.max(ma -> ma.field("avgPrice")))
                             .aggregations("cardinality", a -> a.cardinality(ca -> ca.field("avgPrice")))
                             .aggregations("stats", a -> a.stats((st -> st.field("avgPrice"))))
+
+                            .aggregations("terms", a -> a.terms(t -> t.field("avgPrice").order(NamedValue.of("_count", SortOrder.Asc)))
+                                    .aggregations("cityId", ag -> ag.sum(su -> su.field("cityId"))))
                     , Shop.class
             );
 
