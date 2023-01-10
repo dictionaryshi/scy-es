@@ -320,4 +320,12 @@ public class EsClientTest {
         SearchResponse<Shop> response = esClient.metric();
         System.out.println();
     }
+
+    @Test
+    public void sort() {
+        SearchResponse<Shop> response = esClient.search("shop", builder -> builder
+                        .matchAll(m -> m)
+                , Lists.newArrayList(SortOptions.of(s -> s.field(f -> f.field("avgPrice").order(SortOrder.Desc).missing(6L)))));
+        System.out.println();
+    }
 }
