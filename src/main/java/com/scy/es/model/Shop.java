@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author : shichunyang
@@ -36,5 +37,5 @@ public class Shop {
 
     private Date createdAt;
 
-    private User user;
+    private List<User> users;
 }

@@ -328,4 +328,13 @@ public class EsClientTest {
                 , Lists.newArrayList(SortOptions.of(s -> s.field(f -> f.field("avgPrice").order(SortOrder.Desc).missing(6L)))));
         System.out.println();
     }
+
+    @Test
+    public void nested() {
+        SearchResponse<Shop> response = esClient.search("shop", builder -> builder
+                        .nested(n -> n.path("users")
+                                .query(q -> q.bool(b -> b.filter(f -> f.term(t -> t.field("users.userName").value("婷婷"))).filter(f -> f.term(t -> t.field("users.age").value(27))))))
+                , Lists.newArrayList());
+        System.out.println();
+    }
 }
