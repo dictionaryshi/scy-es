@@ -634,7 +634,7 @@ public class EsClient {
                             .aggregations("cardinality", a -> a.cardinality(ca -> ca.field("avgPrice")))
                             .aggregations("stats", a -> a.stats((st -> st.field("avgPrice"))))
 
-                            .aggregations("terms", a -> a.terms(t -> t.field("avgPrice").order(NamedValue.of("_count", SortOrder.Asc)))
+                            .aggregations("terms", a -> a.terms(t -> t.field("avgPrice").order(NamedValue.of("_count", SortOrder.Desc)).size(3))
                                     .aggregations("cityId", ag -> ag.sum(su -> su.field("cityId"))))
                     , Shop.class
             );
