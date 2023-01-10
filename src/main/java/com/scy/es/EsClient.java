@@ -92,7 +92,7 @@ public class EsClient {
         Map<String, Property> userPropertyMap = new HashMap<>(16);
         userPropertyMap.put("userName", Property.of(propertyBuilder -> propertyBuilder.keyword(KeywordProperty.of(builder -> builder.ignoreAbove(32).normalizer("lowercase_normalizer")))));
         userPropertyMap.put("age", Property.of(propertyBuilder -> propertyBuilder.integer(IntegerNumberProperty.of(builder -> builder.docValues(Boolean.FALSE)))));
-        propertyMap.put("user", Property.of(propertyBuilder -> propertyBuilder.nested(builder -> builder
+        propertyMap.put("users", Property.of(propertyBuilder -> propertyBuilder.nested(builder -> builder
                 .properties(userPropertyMap)
         )));
 
@@ -199,7 +199,7 @@ public class EsClient {
         shop.setShopPoi(new Location(121.25092315673828, 31.331241607666016));
         shop.setOperateName("史春阳");
         shop.setCreatedAt(new Date());
-        shop.setUser(new User("婷婷", 27));
+        shop.setUsers(CollectionUtil.newArrayList(new User("婷婷", 27)));
 
         IndexRequest<Shop> request = IndexRequest.of(i -> i
                 .index("shop")
