@@ -337,4 +337,10 @@ public class EsClientTest {
                 , Lists.newArrayList());
         System.out.println();
     }
+
+    @Test
+    public void reindex() {
+        ReindexResponse reindexResponse = esClient.reIndex();
+        System.out.println();
+    }
 }

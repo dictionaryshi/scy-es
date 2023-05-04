@@ -125,6 +125,36 @@ public class EsClient {
         }
     }
 
+    public ReindexResponse reIndex() {
+        try {
+            ReindexResponse reindexResponse = elasticsearchClient.reindex(r -> r
+                    // 如果出现冲突, 如何处理。proceed:如果冲突, 忽略当前, 继续执行其他的。abort:如果冲突, 直接抛出异常, 中止后续的执行。
+                    .conflicts(Conflicts.Proceed)
+                    .source(s -> s
+                            .index("shop")
+                            .query(q -> q.matchAll(m -> m))
+                            .size(2000)
+                    )
+                    .dest(d -> d
+                            .index("new_shop")
+                            .opType(OpType.Create)
+                    )
+                    .slices(Slices.of(s -> s.computed(SlicesCalculation.Auto)))
+                    .requestsPerSecond(2000L)
+                    .script(s -> s
+                            .inline(i -> i
+                                    .source("ctx._routing = ctx._source.shopId")
+                            )
+                    )
+            );
+
+            return reindexResponse;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public boolean putSettings() {
         try {
             PutIndicesSettingsResponse putIndicesSettingsResponse = elasticsearchClient.indices().putSettings(settingsBuilder -> settingsBuilder
