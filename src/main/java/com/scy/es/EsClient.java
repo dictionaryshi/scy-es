@@ -125,6 +125,25 @@ public class EsClient {
         }
     }
 
+    /*
+        http://localhost:9200/_aliases
+        {
+          "actions": [
+            {
+              "remove": {
+                "index": "shop",
+                "alias": "scy"
+              }
+            },
+            {
+              "add": {
+                "index": "new_shop",
+                "alias": "scy"
+              }
+            }
+          ]
+        }
+     */
     public ReindexResponse reIndex() {
         try {
             ReindexResponse reindexResponse = elasticsearchClient.reindex(r -> r
