@@ -114,6 +114,7 @@ public class EsClient {
                                 )
                         )
                 )
+                .aliases("scy", a -> a)
         );
 
         try {
