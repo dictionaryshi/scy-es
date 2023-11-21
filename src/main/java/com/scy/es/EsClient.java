@@ -14,6 +14,7 @@ import co.elastic.clients.elasticsearch.core.search.*;
 import co.elastic.clients.util.NamedValue;
 import co.elastic.clients.util.ObjectBuilder;
 import com.scy.core.CollectionUtil;
+import com.scy.core.reflect.ClassUtil;
 import com.scy.es.model.User;
 
 import java.util.*;
@@ -39,6 +40,7 @@ import java.util.function.Function;
  * @author shichunyang
  * Created by shichunyang on 2020/10/25.
  */
+@SuppressWarnings(ClassUtil.UNCHECKED)
 @Getter
 @Slf4j
 public class EsClient {
