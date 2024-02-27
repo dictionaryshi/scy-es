@@ -21,8 +21,9 @@ public class EsConfig {
 
     @Bean(destroyMethod = "close")
     public ElasticsearchTransport elasticsearchTransport() {
-        RestClient restClient = RestClient.builder(
-                new HttpHost("localhost", 9200)).build();
+        RestClient restClient = RestClient
+                .builder(new HttpHost("localhost", 9200, "http"))
+                .build();
 
         return new RestClientTransport(restClient, new JacksonJsonpMapper(JsonUtil.getBaseObjectMapper()));
     }
