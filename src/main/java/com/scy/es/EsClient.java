@@ -159,7 +159,8 @@ public class EsClient {
                     )
                     .dest(d -> d
                             .index("new_shop")
-                            .opType(OpType.Create)
+                            // .opType(OpType.Create)
+                            .versionType(VersionType.External)
                     )
                     .slices(Slices.of(s -> s.computed(SlicesCalculation.Auto)))
                     .requestsPerSecond(2000L)
