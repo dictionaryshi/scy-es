@@ -58,7 +58,7 @@ public class EsClient {
         try {
             return elasticsearchClient.ping().value();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(MessageUtil.format("es ping error", e));
             return Boolean.FALSE;
         }
     }
@@ -67,9 +67,9 @@ public class EsClient {
         CompletableFuture<BooleanResponse> responseCompletableFuture = elasticsearchAsyncClient.ping();
         responseCompletableFuture.whenComplete((response, exception) -> {
             if (Objects.nonNull(exception)) {
-                System.out.println(MessageUtil.format("es ping error", exception));
+                log.error(MessageUtil.format("es pingAsync error", exception));
             } else {
-                System.out.println(MessageUtil.format("es ping", "result", response.value()));
+                log.info(MessageUtil.format("es pingAsync", "result", response.value()));
             }
         });
     }
